@@ -1001,70 +1001,121 @@
     </footer>
     
     <script>
-        // Intersection Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-        
-        // Sistema día/noche
-        const sky = document.getElementById('sky');
-        const sun = document.getElementById('sun');
-        const moon = document.getElementById('moon');
-        
-        // Crear estrellas
-        const starsContainer = document.getElementById('stars-container');
-        const sizes = ['small', 'medium', 'large'];
-        for (let i = 0; i < 100; i++) {
-            const star = document.createElement('div');
-            star.className = 'star ' + sizes[Math.floor(Math.random() * sizes.length)];
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 4 + 's';
-            starsContainer.appendChild(star);
-        }
-        
-        window.addEventListener('scroll', () => {
-            const scrollPercentage = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-            
-            // Transición gradual del día a la noche
-            if (scrollPercentage <= 0.33) {
-                // Día completo
-                sky.className = 'sky day';
-                sun.classList.remove('hidden');
-                moon.classList.remove('visible');
-                document.querySelectorAll('.star').forEach(star => {
-                    star.classList.remove('visible');
-                });
-            } else if (scrollPercentage > 0.33 && scrollPercentage <= 0.66) {
-                // Atardecer - transición
-                sky.className = 'sky sunset';
-                // Sol bajando, luna empezando a aparecer
-                const transitionProgress = (scrollPercentage - 0.33) / 0.33; // 0 to 1
-                sun.style.opacity = 1 - transitionProgress;
-                moon.style.opacity = transitionProgress * 0.8;
-                moon.classList.add('visible');
-                // Estrellas empiezan a aparecer gradualmente
-                document.querySelectorAll('.star').forEach(star => {
-                    star.style.opacity = transitionProgress * 0.5;
-                });
-            } else {
-                // Noche completa
-                sky.className = 'sky night';
-                sun.classList.add('hidden');
-                moon.classList.add('visible');
-                moon.style.opacity = 1;
-                document.querySelectorAll('.star').forEach(star => {
-                    star.classList.add('visible');
-                    star.style.opacity = ''; // Reset to CSS animation
-                });
+ // Intersection Observer mejorado con fade-in suave
+const observer = new IntersectionObserver(
+    (entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target); // Mejora rendimiento
             }
         });
+    },
+    { threshold: 0.15 }
+);
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+
+// Elementos del sistema día/noche
+const sky = document.getElementById('sky');
+const sun = document.getElementById('sun');
+const moon = document.getElementById('moon');
+const starsContainer = document.getElementById('stars-container');
+
+// Crear estrellas una sola vez
+(function generateStars() {
+    const sizes = ['small', 'medium', 'large'];
+    const fragment = document.createDocumentFragment(); // mejora rendimiento
+
+    for (let i = 0; i < 120; i++) {
+        const star = document.createElement('div');
+        star.className = 'star ' + sizes[Math.floor(Math.random() * sizes.length)];
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 4 + 's';
+        fragment.appendChild(star);
+    }
+
+    starsContainer.appendChild(fragment);
+})();
+
+
+// Función para interpolar valores suavemente (0–1)
+function lerp(start, end, t) {
+    return start + (end - start) * t;
+}
+
+
+// Suavizar scroll usando requestAnimationFrame
+let lastScroll = 0;
+function handleScroll() {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercentage = window.scrollY / maxScroll;
+
+    // Guardar para animación suave
+    lastScroll = scrollPercentage;
+
+    animateSky(lastScroll);
+
+    requestAnimationFrame(handleScroll);
+}
+requestAnimationFrame(handleScroll);
+
+
+
+// ANIMACIÓN SUAVE DEL CIELO
+function animateSky(progress) {
+    // Día 0 → 0.33
+    if (progress <= 0.33) {
+        const t = progress / 0.33;
+
+        sky.className = 'sky day';
+        sun.style.opacity = lerp(1, 0.4, t);  
+        moon.style.opacity = 0;
+
+        document.querySelectorAll('.star').forEach(star => {
+            star.style.opacity = 0;
+        });
+    }
+
+    // Atardecer 0.33 → 0.66
+    else if (progress > 0.33 && progress <= 0.66) {
+        const t = (progress - 0.33) / 0.33;
+
+        sky.className = 'sky sunset';
+
+        // Sol baja más suave
+        sun.style.opacity = lerp(0.4, 0, t);
+        sun.style.transform = `translateY(${t * 40}px)`;
+
+        // Luna sube
+        moon.style.opacity = lerp(0, 0.8, t);
+        moon.style.transform = `translateY(${(1 - t) * 20}px)`;
+
+        // Estrellas aparecen más suave
+        document.querySelectorAll('.star').forEach(star => {
+            star.style.opacity = lerp(0, 0.6, t);
+        });
+    }
+
+    // Noche completa 0.66 → 1
+    else {
+        const t = (progress - 0.66) / 0.34;
+
+        sky.className = 'sky night';
+
+        sun.style.opacity = 0;
+
+        moon.style.opacity = lerp(0.8, 1, t);
+        moon.style.transform = `translateY(0px) scale(${lerp(1, 1.1, t)})`;
+
+        document.querySelectorAll('.star').forEach(star => {
+            star.style.opacity = lerp(0.6, 1, t);
+        });
+    }
+}
+
     </script>
 </body>
 </html>
