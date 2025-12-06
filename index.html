@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentires - Consultorio Psicológico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: #0a0a0a;
+            scroll-behavior: smooth;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .sky {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            transition: all 3s ease;
+        }
+        
+        .sky.day {
+            background: linear-gradient(to bottom, 
+                #87CEEB 0%,
+                #B0D4E3 20%,
+                #E0F6FF 40%,
+                #FFE5B4 70%,
+                #FFA07A 90%,
+                #FF8C69 100%);
+        }
+        
+        .sky.sunset {
+            background: linear-gradient(to bottom, 
+                #1e3a8a 0%,
+                #7c3aed 30%,
+                #a855f7 50%,
+                #c084fc 70%,
+                #FFA07A 90%,
+                #FF6347 100%);
+        }
+        
+        .sky.night {
+            background: linear-gradient(to bottom, 
+                #0f0f1e 0%, 
+                #1a1a2e 30%,
+                #2d1b4e 60%,
+                #4a1d6f 100%);
+        }
+        
+        .celestial-body {
+            position: fixed;
+            border-radius: 50%;
+            transition: all 3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+        }
+        
+        .sun {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #fff9e6 0%, #ffd700 40%, #ff9800 100%);
+            box-shadow: 
+                0 0 80px rgba(255, 215, 0, 0.6),
+                0 0 150px rgba(255, 215, 0, 0.3),
+                inset -10px -10px 40px rgba(255, 140, 0, 0.3);
+            top: 8%;
+            right: 8%;
+        }
+        
+        .sun.hidden {
+            top: -20%;
+            opacity: 0;
+        }
+        
+        .moon {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 35% 35%, #fff 0%, #f5f5dc 40%, #d3d3d3 100%);
+            box-shadow: 
+                0 0 60px rgba(245, 245, 220, 0.5),
+                0 0 100px rgba(245, 245, 220, 0.2),
+                inset -8px -8px 25px rgba(200, 200, 200, 0.4);
+            top: -20%;
+            right: 10%;
+            opacity: 0;
+        }
+        
+        .moon.visible {
+            top: 8%;
+            opacity: 1;
+        }
+        
+        .star {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+        
+        .star.visible {
+            opacity: 1;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+        
+        .star.small { width: 1px; height: 1px; }
+        .star.medium { width: 2px; height: 2px; }
+        .star.large { 
+            width: 3px; 
+            height: 3px; 
+            box-shadow: 0 0 4px white;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .plant {
+            position: fixed;
+            bottom: -10px;
+            font-size: 2.5rem;
+            opacity: 0;
+            animation: grow 3s ease forwards;
+            z-index: -1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        
+        @keyframes grow {
+            from {
+                transform: translateY(80px) scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 0.4;
+            }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.05),
+                0 10px 20px rgba(0, 0, 0, 0.08),
+                0 20px 40px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c4b5fd);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 8px 12px rgba(0, 0, 0, 0.08),
+                0 16px 32px rgba(0, 0, 0, 0.12),
+                0 24px 48px rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 2px 4px rgba(139, 92, 246, 0.2),
+                0 4px 12px rgba(139, 92, 246, 0.15);
+            font-size: 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 4px 8px rgba(139, 92, 246, 0.25),
+                0 8px 20px rgba(139, 92, 246, 0.2);
+            background: linear-gradient(135deg, #9d6fff 0%, #8b5cf6 100%);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .logo-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .section-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border: 1.5px solid rgba(139, 92, 246, 0.15);
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.04),
+                0 4px 8px rgba(139, 92, 246, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover .icon-wrapper {
+            transform: scale(1.05);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.08),
+                0 8px 16px rgba(139, 92, 246, 0.15);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(229, 231, 235, 0.8), transparent);
+            margin: 3rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2.5rem;
+            }
+            .logo-container {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sky Background -->
+    <div class="sky day" id="sky"></div>
+    <div class="celestial-body sun" id="sun"></div>
+    <div class="celestial-body moon" id="moon"></div>
+    
+    <!-- Stars -->
+    <div id="stars-container"></div>
+    
+    <!-- Plants -->
+    <div class="plant" style="left: 3%; animation-delay: 0s;">🌿</div>
+    <div class="plant" style="left: 12%; animation-delay: 0.4s;">🌱</div>
+    <div class="plant" style="left: 88%; animation-delay: 0.8s;">🌾</div>
+    <div class="plant" style="left: 97%; animation-delay: 1.2s;">🍃</div>
+    <section class="min-h-screen flex items-center justify-center relative px-4 py-28">
+    <div class="text-center fade-in max-w-5xl">
+
+        <!-- LOGO ANIMADO -->
+        <div class="logo-container mb-10 animate-[float_6s_ease-in-out_infinite]">
+            <div class="w-full h-full flex items-center justify-center text-8xl drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]">🦉</div>
+        </div>
+
+        <!-- TÍTULO -->
+        <h1 class="text-7xl md:text-9xl font-extrabold text-white mb-6 tracking-tight leading-none animate-slideUp"
+            style="text-shadow: 0 0 60px rgba(139, 92, 246, 0.9), 0 8px 35px rgba(0,0,0,0.7);">
+            Sentires
+        </h1>
+
+        <!-- SUBTÍTULO -->
+        <p class="text-3xl md:text-5xl text-white mb-8 font-semibold animate-fade"
+           style="text-shadow: 0 4px 25px rgba(0,0,0,0.9);">
+            Consultorio Psicológico
+        </p>
+
+        <!-- DIVIDER -->
+        <div class="max-w-xl mx-auto my-8 animate-fade" 
+             style="height: 3px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent); border-radius: 100px;">
+        </div>
+
+        <!-- DESCRIPCIÓN PRINCIPAL -->
+        <p class="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium mb-14 animate-fade"
+           style="background: rgba(0,0,0,0.35); padding: 1.75rem 2rem; border-radius: 22px; backdrop-filter: blur(14px); text-shadow: 0 4px 18px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.15);">
+            Promoviendo la salud mental con empatía, confidencialidad y perspectiva de género.
+        </p>
+
+        <!-- CTA MEJORADOS -->
+        <div class="flex flex-col sm:flex-row gap-6 justify-center animate-slideUpSlow">
+
+            <!-- BOTÓN PRINCIPAL PREMIUM -->
+            <a href="mailto:consultoriopsicologicosentires@gmail.com"
+               class="px-10 py-5 text-2xl font-semibold text-white rounded-full shadow-[0_10px_40px_rgba(139,92,246,0.55)] 
+                      transition-all duration-300 hover:scale-[1.07] hover:shadow-[0_12px_50px_rgba(139,92,246,0.75)]
+                      bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800">
+                Agenda tu consulta ✨
+            </a>
+
+            <!-- WHATSAPP SUPER LLAMATIVO -->
+            <a href="https://wa.me/573504030571"
+               class="px-10 py-5 text-2xl font-semibold text-white rounded-full shadow-[0_10px_40px_rgba(37,211,102,0.55)]
+                      transition-all duration-300 hover:scale-[1.07] hover:shadow-[0_12px_50px_rgba(37,211,102,0.85)]
+                      bg-gradient-to-br from-emerald-400 to-green-600">
+                Escríbenos por WhatsApp 💬
+            </a>
+        </div>
+    </div>
+
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-14px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUpSlow {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .animate-slideUp { animation: slideUp 1.1s ease forwards; }
+        .animate-slideUpSlow { animation: slideUpSlow 1.6s ease forwards; }
+        .animate-fade { animation: fade 1.6s ease forwards; }
+    </style>
+</section>
+
+   
+    
+    <!-- 10 Años -->
+   
+    <section class="relative py-32 px-4 overflow-hidden">
+    <!-- Fondo decorativo -->
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-pink-400/20 to-yellow-300/20 blur-3xl opacity-70"></div>
+
+    <div class="max-w-7xl mx-auto relative">
+        <div class="backdrop-blur-xl bg-white/60 border border-white/30 shadow-2xl rounded-3xl p-14 text-center animate-[fadeIn_1s_ease]">
+
+            <!-- Icono animado -->
+            <div class="text-7xl mb-8 animate-bounce-slow">🎉</div>
+
+            <h2 class="text-5xl font-extrabold mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent drop-shadow-sm">
+                Una Década de Compromiso
+            </h2>
+
+            <p class="text-2xl text-gray-800 font-semibold mb-6">
+                Celebrando 10 años en febrero 2025
+            </p>
+
+            <p class="text-lg md:text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                Desde 2015, hemos acompañado a cientos de personas, parejas y familias en su proceso de sanación, bienestar y crecimiento personal.  
+                Una década dedicada al cuidado integral de la salud mental en Sonsón y otras regiones.
+            </p>
+        </div>
+    </div>
+
+    <!-- Animación suave en el fondo -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-bounce-slow {
+            animation: bounce 3s infinite;
+        }
+    </style>
+</section>
+
+
+    <!-- Sobre Luz Emilsen -->
+   <section class="py-32 px-4 relative">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="section-title text-center text-white mb-20 fade-in text-glow">Conoce a la Profesional</h2>
+        
+        <div class="card p-12 md:p-16 fade-in">
+
+            <!-- FOTO + LOGO -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-10 mb-16">
+                
+                <!-- Foto de Luz Emilsen -->
+                <div class="w-48 h-48 rounded-full overflow-hidden shadow-xl border-4 border-purple-300 bg-gray-100">
+                    <!-- Reemplaza la URL con la foto real -->
+                    <img src="https://i.ibb.co/0TD8zQx/Captura-desde-2025-12-06-11-10-57.png" 
+                         alt="Foto de Luz Emilsen" 
+                         class="w-full h-full object-cover">
+                </div>
+
+                <!-- Logo del Consultorio -->
+               <div class="w-56 h-56 rounded-2xl overflow-hidden shadow-xl border-4 border-purple-200 bg-white p-6 flex items-center justify-center">
+    <img src="https://i.ibb.co/spGVcLgy/Captura-desde-2025-12-06-11-12-30.png" 
+         alt="Logo del consultorio" 
+         class="w-full h-full object-contain">
+</div>
+
+            </div>
+
+            <div class="text-center mb-12">
+                <h3 class="text-5xl font-bold text-gray-900 mb-4">Luz Emilsen Bedoya Botero</h3>
+                <p class="text-2xl text-purple-600 font-semibold mb-3">Psicóloga Clínica</p>
+                <p class="text-xl text-gray-700">Máster y Especialista en Psicología Clínica y de la Salud</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h4 class="text-2xl font-bold text-gray-900 mb-6">Experiencia y Trayectoria</h4>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                        Con una amplia trayectoria en psicoterapia individual y colectiva, Luz Emilsen es reconocida por su enfoque innovador que integra la sanación a través de múltiples dimensiones: la activación de los sentidos, el arte terapéutico y la conexión profunda con la naturaleza mediante la siembra.
+                    </p>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        Su trabajo ha trascendido fronteras, participando como ponente internacional en proyectos de sanación y salud mental colectiva.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-2xl font-bold text-gray-900 mb-6">Enfoque Terapéutico</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="text-3xl">🌱</div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Terapia con la Naturaleza</p>
+                                <p class="text-gray-600">Integración de la siembra y ecohuerta</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="text-3xl">🎨</div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Arte y Creatividad</p>
+                                <p class="text-gray-600">Espacios vivenciales que activan los sentidos</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="text-3xl">💜</div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Perspectiva de Género</p>
+                                <p class="text-gray-600">Enfoque en equidad y diversidad</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    
+    <!-- Valores y Filosofía -->
+    <section class="py-32 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="section-title text-center text-white mb-20 fade-in text-glow">Nuestra Filosofía de Trabajo</h2>
+            
+            <div class="card p-16 fade-in mb-12">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🌟</div>
+                    <h3 class="text-4xl font-bold text-gray-900 mb-6">Creemos en el Poder de la Transformación</h3>
+                    <p class="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
+                        Cada persona que llega a Sentires trae consigo una historia única, fortalezas escondidas y un potencial infinito de crecimiento. Nuestra labor es acompañarte en el descubrimiento de esos recursos internos que ya posees.
+                    </p>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h4 class="text-2xl font-bold text-purple-800 mb-6">🧠 Enfoque Integral</h4>
+                        <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                            No creemos en soluciones rápidas ni en fórmulas mágicas. Entendemos que la sanación es un proceso que involucra la mente, el cuerpo, las emociones y el espíritu. Por eso integramos diferentes enfoques terapéuticos para atender todas las dimensiones de tu ser.
+                        </p>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start gap-3">
+                                <span class="text-purple-600 font-bold mt-1">•</span>
+                                <span>Psicoterapia basada en evidencia científica</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-purple-600 font-bold mt-1">•</span>
+                                <span>Terapias alternativas con la naturaleza</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-purple-600 font-bold mt-1">•</span>
+                                <span>Arte y expresión creativa como herramienta</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-2xl font-bold text-purple-800 mb-6">🤝 Relación Terapéutica Genuina</h4>
+                        <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                            La relación entre terapeuta y consultante es el corazón del proceso. Construimos un vínculo basado en la confianza, el respeto mutuo y la autenticidad. No somos expertos que te dicen qué hacer, somos compañeros de viaje en tu proceso de autodescubrimiento.
+                        </p>
+                        <div class="bg-purple-50 p-6 rounded-xl">
+                            <p class="text-gray-700 italic">
+                                "En Sentires, tu voz es la que más importa. Nosotros facilitamos el espacio, tú lideras tu proceso."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card p-8 fade-in text-center">
+                    <div class="icon-wrapper mx-auto">
+                        <span>🌱</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Crecimiento a tu Ritmo</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Respetamos tus tiempos. El cambio no se puede forzar; se cultiva con paciencia, como una planta que necesita su tiempo para florecer.
+                    </p>
+                </div>
+                
+                <div class="card p-8 fade-in text-center">
+                    <div class="icon-wrapper mx-auto">
+                        <span>🔒</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Espacio Seguro</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Creamos un ambiente libre de juicios donde puedes expresarte con total libertad y confianza, sabiendo que serás escuchado y comprendido.
+                    </p>
+                </div>
+                
+                <div class="card p-8 fade-in text-center">
+                    <div class="icon-wrapper mx-auto">
+                        <span>💫</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Empoderamiento</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Nuestro objetivo es que descubras tus propias fortalezas y te conviertas en el protagonista de tu propia historia de sanación.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Áreas de Especialización -->
+    <section class="py-32 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="section-title text-center text-white mb-20 fade-in text-glow">Áreas de Especialización</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">😰</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Ansiedad y Estrés</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                Trabajamos contigo para identificar las fuentes de tu ansiedad, desarrollar herramientas de afrontamiento y recuperar la calma en tu vida diaria. Utilizamos técnicas de mindfulness, relajación y conexión con la naturaleza.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">😢</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Depresión y Duelo</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                Acompañamos procesos de tristeza profunda, pérdidas significativas y duelo. Creamos un espacio donde el dolor puede ser expresado y transformado gradualmente en aprendizaje y crecimiento.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">💔</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Relaciones y Vínculos</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                Trabajamos en la mejora de relaciones de pareja, familiares y sociales. Ayudamos a desarrollar comunicación efectiva, resolución de conflictos y fortalecimiento de vínculos afectivos saludables.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">🌈</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Identidad y Autoestima</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                Facilitamos procesos de autoconocimiento, construcción de identidad y fortalecimiento de la autoestima. Trabajamos con perspectiva de género y respeto a la diversidad en todas sus formas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">🎭</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Trauma y Resiliencia</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                Acompañamos procesos de sanación de experiencias traumáticas, desarrollando resiliencia y recuperando el sentido de seguridad y bienestar. Utilizamos enfoques sensibles al trauma.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-10 fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="text-5xl">🌟</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Crecimiento Personal</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                No necesitas estar en crisis para buscar terapia. Acompañamos procesos de desarrollo personal, búsqueda de sentido, y exploración de propósito de vida a través de la introspección y la creatividad.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="py-32 px-4">
+  
+    
+    <!-- Proyectos -->
+    <section class="py-32 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="section-title text-center text-white mb-20 fade-in text-glow">Proyectos Actuales</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="card p-12 fade-in">
+                    <div class="text-center mb-8">
+                        <div class="text-7xl mb-6">💙</div>
+                        <h3 class="text-4xl font-bold text-gray-900 mb-4">Los hombres también sentimos</h3>
+                    </div>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        Espacio dedicado a la promoción de la salud mental masculina, donde los hombres pueden expresar sus emociones libremente y sin juicios, desafiando estereotipos y construyendo comunidad.
+                    </p>
+                </div>
+                
+                <div class="card p-12 fade-in">
+                    <div class="text-center mb-8">
+                        <div class="text-7xl mb-6">🌿</div>
+                        <h3 class="text-4xl font-bold text-gray-900 mb-4">La siembra en ecohuerta</h3>
+                    </div>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        Un espacio terapéutico único donde la conexión con la tierra se convierte en un camino de sanación. El proceso de siembra refleja el crecimiento personal.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Galería de Fotografías -->
+<section class="py-32 px-4 relative">
+   <div class="max-w-7xl mx-auto">
+      <h2 class="section-title text-center text-white mb-20 fade-in text-glow">Nuestro Trabajo en Imágenes</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+         
+         <!-- Imagen 1: Hombres con carteles -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/jZJVWqvs/Whats-App-Image-2025-12-05-at-5-55-22-PM.jpg" 
+                  alt="Proyecto Los hombres también sentimos"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Proyecto: Los hombres también sentimos</p>
+                  <p class="text-white/90 text-sm">Expresión emocional masculina desde el respeto y la vulnerabilidad</p>
+                  <div class="mt-4 space-y-1 text-xs text-white/80">
+                     <p>"Los hombres también cuidamos"</p>
+                     <p>"Los hombres también tenemos miedo"</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-purple-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Acompañamiento a Hombres</p>
+         </div>
+
+         <!-- Imagen 2: Mesa con materiales terapéuticos -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/jksvdFTL/Whats-App-Image-2025-12-05-at-5-56-08-PM.jpg" 
+                  alt="Talleres Vivenciales"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Talleres Vivenciales</p>
+                  <p class="text-white/90 text-sm">Experiencias sensoriales que integran arte, expresión y autoconocimiento</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Activación sensorial</p>
+                     <p>Arte expresivo</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-pink-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Creatividad Terapéutica</p>
+         </div>
+
+         <!-- Imagen 3: Mujeres en huerto -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/cSNxc2jg/Whats-App-Image-2025-12-05-at-5-58-41-PM.jpg" 
+                  alt="Terapia con Ecohuerta"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Terapia con Ecohuerta</p>
+                  <p class="text-white/90 text-sm">Trabajo colaborativo en el huerto como espacio de reconexión</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Conexión con la tierra</p>
+                     <p>Bienestar profundo</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Sanación a Través de la Tierra</p>
+         </div>
+
+         <!-- Imagen 4: Niña en naturaleza -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/gZdGDB3g/Whats-App-Image-2025-12-05-at-5-59-39-PM.jpg" 
+                  alt="Infancia en contacto con la naturaleza"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Conexión con la Naturaleza</p>
+                  <p class="text-white/90 text-sm">Infancia en contacto con la naturaleza y el juego libre</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Alegría genuina</p>
+                     <p>Armonía natural</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-yellow-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Infancia y Bienestar</p>
+         </div>
+
+         <!-- Imagen 5: Plantas en el suelo -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/LX00s90Q/Whats-App-Image-2025-12-05-at-6-01-39-PM-1.jpg" 
+                  alt="Plantas y semillas en proceso de siembra"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Plantas y Semillas</p>
+                  <p class="text-white/90 text-sm">Etapas iniciales del crecimiento y procesos de siembra</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Cuidado</p>
+                     <p>Ciclos de vida</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-lime-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Nuevos Comienzos</p>
+         </div>
+
+         <!-- Imagen 6: Vela y semillas -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/GfTBdbqJ/Whats-App-Image-2025-12-05-at-6-04-28-PM.jpg" 
+                  alt="Vela con mazorcas y semillas"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Espacios Rituales</p>
+                  <p class="text-white/90 text-sm">Elementos simbólicos para acompañar procesos de introspección</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Intención</p>
+                     <p>Reconexión</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-orange-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Rituales de Bienestar</p>
+         </div>
+
+         <!-- Imagen 7: Pareja embarazada -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square rounded-2xl overflow-hidden relative">
+               <img 
+                  src="https://i.ibb.co/jkwhDQ6k/Whats-App-Image-2025-12-05-at-6-08-58-PM.jpg" 
+                  alt="Pareja embarazada acompañada en proceso terapéutico"
+                  class="w-full h-full object-cover"
+               />
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-white font-semibold text-lg mb-2">Acompañamiento Prenatal</p>
+                  <p class="text-white/90 text-sm">Pareja celebrando la gestación desde el amor consciente</p>
+                  <div class="mt-4 text-xs text-white/80 space-y-1">
+                     <p>Nueva vida</p>
+                     <p>Cuidado y conexión</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-rose-600 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Maternidad y Paternidad Consciente</p>
+         </div>
+
+         <!-- Imagen 8: Más trabajos -->
+         <div class="card p-3 fade-in group cursor-pointer">
+            <div class="aspect-square bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl overflow-hidden relative">
+               <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                  <div class="text-5xl mb-4">🌿</div>
+                  <p class="text-gray-800 font-semibold text-lg mb-2">Procesos Terapéuticos</p>
+                  <p class="text-gray-600 text-sm">Naturaleza, arte y emoción integrados en el camino personal</p>
+                  <div class="mt-4 text-xs text-gray-500 space-y-1">
+                     <p>Transformación</p>
+                     <p>Florecimiento interior</p>
+                  </div>
+               </div>
+               <div class="absolute inset-0 bg-violet-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+            </div>
+            <p class="text-center text-gray-700 mt-3 font-medium">Crecimiento Integral</p>
+         </div>
+
+      </div>
+
+      <div class="text-center mt-12 fade-in">
+         <p class="text-xl text-white italic">
+            "Cada imagen cuenta una historia de sanación, crecimiento y esperanza"
+         </p>
+      </div>
+   </div>
+</section>
+
+    
+    <!-- CTA Final -->
+    <section class="py-32 px-4 relative">
+        <div class="max-w-5xl mx-auto text-center fade-in">
+            <div class="card p-16">
+                <div class="text-6xl mb-8">🌟</div>
+                <h2 class="text-5xl font-bold gradient-text mb-8">Da el Primer Paso</h2>
+                <p class="text-2xl text-gray-700 mb-12 leading-relaxed">
+                    Estás a un mensaje de comenzar tu proceso de transformación
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+                    <a href="mailto:consultoriopsicologicosentires@gmail.com" class="btn-primary text-lg">
+                        Agenda tu Consulta
+                    </a>
+                    <a href="https://wa.me/573504030571" class="btn-primary text-lg" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);">
+                        WhatsApp
+                    </a>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 mt-12 text-left">
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">📍</div>
+                        <div>
+                            <p class="font-semibold text-gray-900 mb-1">Ubicación</p>
+                            <p class="text-gray-600">Sonsón, Antioquia</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">📧</div>
+                        <div>
+                            <p class="font-semibold text-gray-900 mb-1">Email</p>
+                            <p class="text-gray-600 text-sm">consultoriopsicologicosentires@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">📱</div>
+                        <div>
+                            <p class="font-semibold text-gray-900 mb-1">Teléfono</p>
+                            <p class="text-gray-600">+57 350 4030571</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-8 px-4 bg-black bg-opacity-20 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto text-center text-white">
+            <p class="text-lg mb-2">💜 Sentires - Consultorio Psicológico 💜</p>
+            <p class="text-sm opacity-80">10 años cuidando la salud mental de nuestra comunidad</p>
+            <p class="text-xs opacity-60 mt-4">© 2025 Sentires. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        
+        // Sistema día/noche
+        const sky = document.getElementById('sky');
+        const sun = document.getElementById('sun');
+        const moon = document.getElementById('moon');
+        
+        // Crear estrellas
+        const starsContainer = document.getElementById('stars-container');
+        const sizes = ['small', 'medium', 'large'];
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star ' + sizes[Math.floor(Math.random() * sizes.length)];
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 4 + 's';
+            starsContainer.appendChild(star);
+        }
+        
+        window.addEventListener('scroll', () => {
+            const scrollPercentage = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            
+            // Transición gradual del día a la noche
+            if (scrollPercentage <= 0.33) {
+                // Día completo
+                sky.className = 'sky day';
+                sun.classList.remove('hidden');
+                moon.classList.remove('visible');
+                document.querySelectorAll('.star').forEach(star => {
+                    star.classList.remove('visible');
+                });
+            } else if (scrollPercentage > 0.33 && scrollPercentage <= 0.66) {
+                // Atardecer - transición
+                sky.className = 'sky sunset';
+                // Sol bajando, luna empezando a aparecer
+                const transitionProgress = (scrollPercentage - 0.33) / 0.33; // 0 to 1
+                sun.style.opacity = 1 - transitionProgress;
+                moon.style.opacity = transitionProgress * 0.8;
+                moon.classList.add('visible');
+                // Estrellas empiezan a aparecer gradualmente
+                document.querySelectorAll('.star').forEach(star => {
+                    star.style.opacity = transitionProgress * 0.5;
+                });
+            } else {
+                // Noche completa
+                sky.className = 'sky night';
+                sun.classList.add('hidden');
+                moon.classList.add('visible');
+                moon.style.opacity = 1;
+                document.querySelectorAll('.star').forEach(star => {
+                    star.classList.add('visible');
+                    star.style.opacity = ''; // Reset to CSS animation
+                });
+            }
+        });
+    </script>
+</body>
+</html>
